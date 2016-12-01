@@ -34,7 +34,7 @@ function init () {
 function makeBox() {
 	// var geometry = new THREE.BoxGeometry(1,1,1);
 
-	var geometry = new THREE.TorusGeometry(8,3,16,16);
+	var geometry = new THREE.TorusGeometry(8,3,64,64);
 	// var geometry = new THREE.SphereGeometry(1,32,32);
 	
 	var uniforms = THREE.UniformsUtils.merge( 

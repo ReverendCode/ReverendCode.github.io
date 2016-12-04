@@ -26,29 +26,47 @@ function init () {
 	var container = document.body;
 	container.appendChild(renderer.domElement);
 
-	obj = makeBox();
+	obj = createTorus();
 	scene.add(obj);
 	animate();
 }
 
-function makeBox() {
-	// var geometry = new THREE.BoxGeometry(1,1,1);
+function CreateWorld() { // and he said, let there be light.
+	var geometry = new THREE.PlaneGeometry(	10, // size in X (units?)
+											10, // Y
+											9,	// Resolution in X (Number of subdivisions)
+											9);	// Resolution in Y
+	var material = applyMaterial();
 
-	var geometry = new THREE.TorusGeometry(8,3,64,64);
-	// var geometry = new THREE.SphereGeometry(1,32,32);
-	
+	var plane = new THREE.Mesh(geometry, material);
+
+	for (var i = 0; i < plane.geometry.vertices.length; i++) {
+		// In here you can adjust the z (and presumably the x, and y if you want, but we don't, for now)
+		// vertices are accessed sequentially, fire your generated data here.
+	}
+
+	return plane;
+}
+
+function applyMaterial() {
 	var uniforms = THREE.UniformsUtils.merge( 
 		[ {
-		colorRed: {type: 'c', value: new THREE.Color(0xfd0000)},
-		lightDir: {value: new THREE.Vector3(0.0,9999.0,9999.0)} 
+			step: { type: 'f', value: 5.0},
+			divisor: { type: 'f', value: 6.0},
+			colorRed: {type: 'c', value: new THREE.Color(0x004300)},
+			lightDir: {value: new THREE.Vector3(0.0,9999.0,9999.0)} 
 		}]);
 	
-	var material = new THREE.ShaderMaterial({
+	return new THREE.ShaderMaterial({
 		uniforms: uniforms,
 		vertexShader: document.getElementById('VertexShader').text,
-		fragmentShader: document.getElementById('ToonShader').text
-	});
-	return new THREE.Mesh(geometry, material);
+		fragmentShader: document.getElementById('ToonShader').text	
+	}); 
+}
+
+function createTorus() {
+	var geometry = new THREE.TorusGeometry(8,3,64,64);
+	return new THREE.Mesh(geometry, applyMaterial());
 }
 
 function animate() {

@@ -26,7 +26,10 @@ function init () {
 	var container = document.body;
 	container.appendChild(renderer.domElement);
 
-	obj = createTorus();
+	// obj = createTorus();
+	obj = CreateWorld();
+
+
 	scene.add(obj);
 	animate();
 }
@@ -41,8 +44,10 @@ function CreateWorld() { // and he said, let there be light.
 	var plane = new THREE.Mesh(geometry, material);
 
 	for (var i = 0; i < plane.geometry.vertices.length; i++) {
+
 		// In here you can adjust the z (and presumably the x, and y if you want, but we don't, for now)
 		// vertices are accessed sequentially, fire your generated data here.
+		plane.geometry.vertices[i].z = Math.random();
 	}
 
 	return plane;

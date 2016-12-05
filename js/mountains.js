@@ -31,6 +31,10 @@ function init (draw) {
 	camera.add(obj);
 	scene.add(camera);
 	// scene.add(obj);
+	
+	// scene.add(fog);
+
+
 	animate();
 }
 
@@ -57,15 +61,20 @@ function CreateWorld(detail = 5) { // and he said, let there be light.
 }
 
 function applyMaterial() {
+	var loader = new THREE.TextureLoader();
+	var img = loader.load( 'textures/mat.png');
+
 	var uniforms = THREE.UniformsUtils.merge( 
 		[ {
 			step: { type: 'f', value: 10.0},
 			divisor: { type: 'f', value: 6.0},
+			// texture: {type: 't', value: img},
 			colorRed: {type: 'c', value: new THREE.Color(0x0060ff)}
 		}]);
 	
 	return new THREE.ShaderMaterial({
 		uniforms: uniforms,
+		map: img,
 		vertexShader: document.getElementById('VertexShader').text,
 		fragmentShader: document.getElementById('ToonShader').text	
 	}); 
@@ -79,8 +88,8 @@ function CreateTorus() {
 
 function animate() {
 	requestAnimationFrame(animate);
-	// obj.rotation.x += 0.005;
-	camera.rotation.y += 0.01;
+	camera.rotation.x += 0.005;
+	camera.rotation.y += 0.006;
 	// camera.position.y += .001;
 
 	renderer.render(scene, camera);

@@ -1,6 +1,7 @@
 <html>
 <head>
 <script src="js/three.min.js"></script>
+<script src="js/groundImage.js"></script>
 <script src="js/mountains.js"></script>
 <script src="js/THREE.Terrain.min.js"></script>
 
@@ -15,21 +16,27 @@
 <script type="shader" id="VertexShader">
 //vertex shader goes here
 // varying means that this value will be different for each vertex (fragment?)
-
-uniform vec3 colorRed;
-uniform sampler2D texture;
+uniform float snowLevel;
 varying vec3 vPosition;
 varying vec3 vNormal;
 varying vec3 lightDir;
 varying vec2 vUv;
 
 void main() {
-	vUv = uv;
+
+	// vUv.x is the angle away from horizontal (0=flat, 1=vertical)
+	// vUv.y is elevation, clamped to snowLevel (0=green, 1+=white)
+	vUv.x  = 0.5;//= clamp((vPosition.y / snowLevel), 0.0, 1.0);
+	
+	float angle = acos(dot(0.0,normal.y));
+	float nintyDeg = 1.5708;
+	vUv.y = (angle / nintyDeg);
+
+
 	vec3 globalLightDirection = vec3(0.0,1.0,1.0);
-
-
 	vPosition = (modelMatrix * vec4(position, 1.0)).xyz;
 	vNormal = normalMatrix * normal;
+
 	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 
 }
@@ -57,14 +64,12 @@ void main() {
 	Look at the height of the terrain, and the angle of the fall line to determine color values
 	e.g. flat, low = green, flat, high = white, steep, low = brown/grey, steep, high = blue
 	*/
-
-
 	vec3 col = vec3(0.0);
 	vec3 lightDirection = normalize(vPosition - lightDir);
 	col += clamp(dot(-lightDirection, n), 0.0, 1.0);
 	float intensity = ceil(clamp((col.r + col.g + col.b) / divisor, 0.0, 1.0) * step) / step;
 	// gl_FragColor = vec4(colorRed, 1.0) + vec4(intensity);
-		gl_FragColor = texture2D(texture, vUv) + vec4(intensity);
+	gl_FragColor = texture2D(texture, vUv) + vec4(intensity);
 
 }
 

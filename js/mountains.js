@@ -61,20 +61,19 @@ function CreateWorld(detail = 5) { // and he said, let there be light.
 }
 
 function applyMaterial() {
-	var loader = new THREE.TextureLoader();
-	var img = loader.load( 'textures/mat.png');
-
-	var uniforms = THREE.UniformsUtils.merge( 
-		[ {
-			step: { type: 'f', value: 10.0},
-			divisor: { type: 'f', value: 6.0},
-			// texture: {type: 't', value: img},
-			colorRed: {type: 'c', value: new THREE.Color(0x0060ff)}
-		}]);
+// hardCut or groundTexture are your choices
+	var img = new THREE.Texture(groundTexture);
+	img.needsUpdate = true;
+	var uniforms = Object.assign(
+			{snowLevel: {type: 'f', value: 1.0}},
+			{step: { type: 'f', value: 10.0}},
+			{divisor: { type: 'f', value: 6.0}},
+			{texture: {type: 't', value: img}},
+			{colorRed: {type: 'c', value: new THREE.Color(0xff0000)}}
+		);
 	
 	return new THREE.ShaderMaterial({
 		uniforms: uniforms,
-		map: img,
 		vertexShader: document.getElementById('VertexShader').text,
 		fragmentShader: document.getElementById('ToonShader').text	
 	}); 

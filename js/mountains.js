@@ -65,11 +65,10 @@ function applyMaterial() {
 	var img = new THREE.Texture(groundTexture);
 	img.needsUpdate = true;
 	var uniforms = Object.assign(
-			{snowLevel: {type: 'f', value: 1.0}},
-			{step: { type: 'f', value: 10.0}},
+			{snowLevel: {type: 'f', value: 400.0}},
+			{step: { type: 'f', value: 8.0}},
 			{divisor: { type: 'f', value: 6.0}},
-			{texture: {type: 't', value: img}},
-			{colorRed: {type: 'c', value: new THREE.Color(0xff0000)}}
+			{texture: {type: 't', value: img}}
 		);
 	
 	return new THREE.ShaderMaterial({
@@ -88,7 +87,7 @@ function CreateTorus() {
 function animate() {
 	requestAnimationFrame(animate);
 	camera.rotation.x += 0.005;
-	camera.rotation.y += 0.006;
+	// camera.rotation.y += 0.006;
 	// camera.position.y += .001;
 
 	renderer.render(scene, camera);

@@ -1,18 +1,18 @@
 
 var scene, camera, renderer;
-var  sunlight;
-var rising = true;
+// var  sunlight;
+// var rising = true;
 
 //TODO: remove this test object
 var obj = null;
 
 function init (draw) {
 	//set the scene
+
 	scene = new THREE.Scene();
 	var screenWidth = window.innerWidth, screenHeight = window.innerHeight;
-	var viewAngle = 45, aspect = screenWidth / screenHeight, near = 0.1, far = 1000;
+	var viewAngle = 45, aspect = screenWidth / screenHeight, near = 0.1, far = 10000;
 	camera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
-	// camera.position.set(100,100,80);
 	camera.lookAt(scene.position);
 	renderer = new THREE.WebGLRenderer( {
 		antialias: true,
@@ -23,24 +23,44 @@ function init (draw) {
 	var container = document.body;
 	container.appendChild(renderer.domElement);
 
-	// obj = createTorus();
-	obj = draw;
-	obj.position.set(0,-50,0);
 
-	// obj.add(camera);
+	obj = draw;
+	var sky = MakeSkybox();
+	scene.add(sky);
+
+	obj.position.set(0,0,-200);
 	camera.add(obj);
 	scene.add(camera);
-	// scene.add(obj);
-	
-	// scene.add(fog);
+
 
 
 	animate();
 }
+function MakeSkybox() {
+	// var material = new THREE.MeshBasicMaterial({color: 0x0000ff, side: THREE.DoubleSide});
+	var material = applySkyShader();
+    var skybox = new THREE.Mesh(new THREE.CubeGeometry(2000, 2000, 2000), material);
+        // var skybox = new THREE.Mesh(new THREE.CubeGeometry(1,1,1), material);
 
+    return skybox;
 
+}
+function applySkyShader() {
+	var img = new THREE.Texture(skyBox);
+	img.needsUpdate = true;
+	var uniforms = Object.assign(
+			{skyTexture: {type: 't', value: img}}
+		);
+	
+	return new THREE.ShaderMaterial({
+		side: THREE.DoubleSide,
+		uniforms: uniforms,
+		vertexShader: document.getElementById('vertexSkyShader').text,
+		fragmentShader: document.getElementById('fragmentSkyShader').text	
+	}); 
+}
 
-function CreateWorld(detail = 5) { // and he said, let there be light.
+function CreateWorld() { // and he said, let there be light.
 	
 	var xS = 63, yS = 63;
 
@@ -87,10 +107,8 @@ function CreateTorus() {
 function animate() {
 	requestAnimationFrame(animate);
 	camera.rotation.x += 0.005;
-	// camera.rotation.y += 0.006;
+	camera.rotation.y += 0.0001;
 	// camera.position.y += .001;
 
 	renderer.render(scene, camera);
-
-	
 }

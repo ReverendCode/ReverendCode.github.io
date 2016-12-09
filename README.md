@@ -17,3 +17,7 @@ http://danni-three.blogspot.com/2013/09/threejs-heightmaps.html
 
 Stretch Goal: 
 https://youtu.be/6lV5vSOz6co
+
+
+Thanks Raleigh, for helping me get around the CORS issue:
+http://dataurl.net/#dataurlmaker

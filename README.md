@@ -6,7 +6,7 @@ Terrain generation sources:
 
 https://github.com/IceCreamYou/THREE.Terrain
 
-
+http://csc.lsu.edu/~kooima/misc/cs594/final/part2.html
 
 http://www.playfuljs.com/realistic-terrain-in-130-lines/
 http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/

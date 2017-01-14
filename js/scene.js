@@ -5,10 +5,10 @@ var boidList = [];
 
 // Constants live here:
 
-var boidRange = 400;
-var maxSpeed = 2;
+var boidRange = 1000;
+var maxSpeed = 1;
 var personalBubble = 10;
-var border = 200;
+var border = 100;
 
 // toggles for rules (as needed)
 var r1 = 1;
@@ -24,6 +24,8 @@ function handleKeyUp(key) {
 	if (key.keyCode == 68) {
 		console.log("combine");
 		r1 = 1;
+	} else {
+		console.log("unhandled key release");
 	}
 }
 
@@ -31,7 +33,9 @@ function handleKeyDown(key) {
 	key = key || window.event;
 	if (key.keyCode == 68) {
 		console.log("disperse");
-		r1 = 0;
+		r1 = -1;
+	} else {
+		console.log("unhandled keypress");
 	}
 }
 
@@ -47,7 +51,7 @@ function init (numBoids) {
 	camera = new THREE.PerspectiveCamera(viewAngle, aspect, near, far);
 
 	//TODO: this should probably look at the COM for the whole flock
-	camera.position.set(0,0,500);
+	camera.position.set(0,100,500);
 	camera.lookAt(scene.position);
 	renderer = new THREE.WebGLRenderer( {
 		antialias: true,
@@ -77,12 +81,19 @@ function init (numBoids) {
 function animate() {
 	requestAnimationFrame(animate);
 	//perform animation functions over all boids + update camera position
-	for (boid in boidList) { //I am annoyed that this is so close to pythonic syntax, 
-		boidList[boid].update(boidList); // but not quite there.
+	for (boid in boidList) { 
+		if (boidList[boid].perching > 0) {
+			boidList[boid].perching--;
+		} else {
+			boidList[boid].update(boidList); 	
+		}
+		
 	}
 
 	//update camera here.
-	camera.lookAt(COM(boidList));
+	var centerOfMass = COM(boidList);
+	// camera.lookAt(centerOfMass);
+
 
 	renderer.render(scene, camera);
 }
@@ -102,11 +113,14 @@ function COM(neighbors) {
 function ruleOne(neighbors, me) {
 	var vec1 = new THREE.Vector3();
 	var accum = 0;
+	var distance;
 	for (i in neighbors) {
+		distance = me.mesh.position.distanceTo(neighbors[i].mesh.position);
 		if (me.mesh != neighbors[i].mesh && 
-			me.mesh.position.distanceTo(neighbors[i].mesh.position) < boidRange) {
+			distance < boidRange) {
 			accum++;
 			vec1.add(neighbors[i].mesh.position);
+			// vec1.multiplyScalar(distance/boidRange);
 		}
 	}
 	vec1.divideScalar(accum);
@@ -118,10 +132,10 @@ function ruleTwo(neighbors, me) {
 	var temp = new THREE.Vector3();
 	for (i in neighbors) {
 			if (me.mesh != neighbors[i].mesh) {
-				temp.subVectors(me.mesh.position, neighbors[i].mesh.position);
+				temp.subVectors(neighbors[i].mesh.position, me.mesh.position);
 
 				if (Math.abs(temp.length()) < personalBubble) {
-					pushBack.add(temp);
+					pushBack.sub(temp);
 				}
 			}
 	}
@@ -140,9 +154,12 @@ function ruleThree(neighbors, me) {
 	}
 	velocity.divideScalar(accum);
 	velocity.sub(me.velocity);
-	return velocity.divideScalar(25);
+	return velocity.divideScalar(8);
 }
 
+function wind() {
+	return new THREE.Vector3(0.1,0,0);
+}
 function updatePosition(neighbors) {
 	// Three basic rules for emergent flocking behavior
 	var vec1 = ruleOne(neighbors, this);
@@ -152,8 +169,10 @@ function updatePosition(neighbors) {
 
 	this.velocity.add(vec1.multiplyScalar(r1));
 	this.velocity.add(vec2);
-	this.velocity.add(vec3.multiplyScalar(r1));
+	this.velocity.add(vec3);
 	this.velocity.add(bound(this));
+
+	// this.velocity.add(wind());
 
 	this.velocity.clampLength(-maxSpeed,maxSpeed);
 
@@ -183,6 +202,13 @@ function bound(boid) {
 	else if (boid.mesh.position.y > yMax) {
 		vector.y = -distance;
 	}
+
+	vector.z = boid.mesh.position.z < -border ? distance : vector.z;
+	vector.z = boid.mesh.position.z > border ? -distance : vector.z;
+	if (boid.mesh.position.y < 0) {
+		boid.mesh.position.y = 0;
+		boid.perching = Math.random() * 10;
+	}
 	return vector;
 }
 
@@ -196,8 +222,8 @@ function boidMat() {
 
 function Boid(initVelocity, initPosition) {
 	this.mesh = new THREE.Mesh(boidGeom(), boidMat());
-	var rNum = Math.random() * 100;
-	this.mesh.position.set(rNum,rNum,0);
+	this.perching = 0;
+	this.mesh.position.set(Math.random() * 100,Math.random() * 100,Math.random() * 100);
 	this.velocity = initVelocity;
 	this.update = updatePosition;
 
